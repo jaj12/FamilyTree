@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#153e35"><title>Jundi Family Tree · شجرة عائلة الجندي</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='20' fill='%23153e35'/%3E%3Ctext x='40' y='57' text-anchor='middle' font-size='53' fill='%23e0c994'%3Eج%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body>
+<aside class="sidebar">
+ <a class="brand" href="#" id="home"><span class="brand-mark" aria-hidden="true">ج</span><span><b>JUNDI</b><small data-i18n="familyArchive">THE FAMILY ARCHIVE</small></span></a>
+ <div class="intro"><div class="eyebrow" data-i18n="eyebrow">OUR ROOTS, CONNECTED</div><h1 data-i18n="heading">Every name.<br>A connection.</h1><p data-i18n="intro">Explore the people and generations that make up our family.</p></div>
+ <label class="search-label" for="search" data-i18n="find">Find someone</label>
+ <div class="searchbox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="Search in English or Arabic…" aria-controls="results"><kbd>/</kbd></div>
+ <div class="search-meta" id="searchMeta" role="status" aria-live="polite"></div>
+ <div class="results" id="results" aria-label="Search results"></div>
+ <div class="sidebar-bottom"><span class="live-dot"></span><span id="peopleCount"></span><span class="generation-tag" data-i18n="six">6 generations</span></div>
+</aside>
+<main>
+ <header class="topbar"><div class="page-title"><span class="tiny-tree" aria-hidden="true">⌘</span><div><b data-i18n="treeTitle">The Jundi family tree</b><small id="scopeLabel"></small></div></div><div class="top-actions"><button class="language" id="language" lang="ar">العربية <span>⇄</span></button><button class="help-button" id="helpButton" aria-label="Help">?</button></div></header>
+ <section class="workspace" aria-label="Interactive family tree">
+  <div class="workspace-top"><div class="view-label"><span class="live-dot"></span><span data-i18n="explore">EXPLORE YOUR ROOTS</span></div><div class="tree-actions"><div class="bulk-actions" role="group" aria-label="Branch visibility"><button id="collapseAll" data-i18n="collapseAll">Collapse all</button><button id="expandAll" data-i18n="expandAll">Expand all</button></div><label class="branch-select"><span data-i18n="branch">Branch</span><select id="branch" aria-label="Select a family branch"></select></label></div></div>
+  <div id="canvas" tabindex="0" aria-label="Family tree. Drag to pan; use plus and minus to zoom."><svg id="treeSvg" xmlns="http://www.w3.org/2000/svg"><g id="scene"><g id="edges"></g><g id="nodes"></g></g></svg><div class="loading" id="loading">Loading the family tree…</div></div>
+  <div class="canvas-hint" id="canvasHint"><span class="mouse-symbol">↔</span><span data-i18n="hint">Drag to explore · Scroll or pinch to zoom</span><button id="dismissHint" aria-label="Dismiss tip">×</button></div>
+  <div class="legend"><span class="legend-dot male"></span><span data-i18n="male">Male</span><span class="legend-dot female"></span><span data-i18n="female">Female</span><span class="legend-line"></span><span data-i18n="familyLink">Family connection</span></div>
+  <div class="zoom-controls"><button id="zoomOut" aria-label="Zoom out">−</button><output id="zoomValue">100%</output><button id="zoomIn" aria-label="Zoom in">+</button><span></span><button id="fit" class="fit" data-i18n="fit">Fit tree</button></div>
+  <section class="detail-panel" id="detail" hidden aria-label="Person details"><button class="close-detail" id="closeDetail" aria-label="Close details">×</button><div id="detailBody"></div></section>
+ </section>
+ <footer><span data-i18n="footer">A living record of the people who connect us.</span><span class="footer-right" data-i18n="record">From our family's own records</span></footer>
+</main>
+<dialog id="helpDialog"><button id="closeHelp" class="close-detail" aria-label="Close">×</button><div class="eyebrow" data-i18n="welcome">MAKE YOURSELF AT HOME</div><h2 data-i18n="helpTitle">A little guide to your tree</h2><ul><li data-i18n="helpSearch">Search in either language, then select a name to jump to that person.</li><li data-i18n="helpZoom">Drag the tree to move around. Scroll, pinch, or use + / − to zoom.</li><li data-i18n="helpBranch">Choose a branch for a closer look. “Fit tree” brings the current branch into view.</li><li data-i18n="helpPerson">Select any name to see parents, partners, children, and siblings.</li></ul><button class="primary" id="helpDone" data-i18n="gotIt">Got it</button></dialog>
+</body></html>
