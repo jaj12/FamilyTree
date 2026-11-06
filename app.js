@@ -23,13 +23,33 @@ function render(){const edges=$('edges'),nodes=$('nodes');edges.replaceChildren(
  for(const p of positions){const n=p.node,person=people[n.id],g=elt('g',{class:'tree-node'+(selected===n.id||selected===n.spouseId||selected===n.motherId?' selected':'')+(query&&[n.id,n.spouseId,n.motherId].filter(Boolean).some(id=>normalize(people[id].en+' '+people[id].ar).includes(query))?' match':''),transform:`translate(${p.x},${p.y-cardHeight/2})`});g.append(elt('rect',{width:cardWidth,height:cardHeight,rx:10,class:'tree-card'}));g.append(elt('rect',{x:rtl?cardWidth-4:0,y:14,width:3,height:48,rx:1.5,fill:person.gender==='f'?'#bb7894':'#6b95b0'}));
  // SVG anchors follow text direction: RTL start anchors the right edge.
  const textX=rtl?cardWidth-18:18,anchor='start';
- function personText(id,y,cls,prefix=''){const tx=elt('text',{x:textX,y,'text-anchor':anchor,direction:rtl?'rtl':'ltr',class:cls+' person-line',tabindex:0,role:'button','aria-label':name(id)},prefix+name(id));tx.addEventListener('click',e=>{e.stopPropagation();if(moveCount<5)choose(id);});tx.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(id);}});g.append(tx);}
+ // Use a fixed-width HTML text box for Arabic. Its physical bounds do not
+ // depend on SVG's direction-sensitive text-anchor implementation.
+ function arabicLabel(text,y,cls,personId=null,isEnglish=false){
+  const box=elt('foreignObject',{x:18,y,width:cardWidth-36,height:22,class:'arabic-label-box'});
+  const label=document.createElementNS('http://www.w3.org/1999/xhtml','div');
+  const isNote=cls.includes('tree-note'),isPartner=cls.includes('tree-partner');
+  const female=personId?people[personId].gender==='f':false;
+  label.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  label.setAttribute('dir',isEnglish?'ltr':'rtl');
+  label.setAttribute('style',`box-sizing:border-box;display:block;width:100%;height:22px;margin:0;padding:0;direction:${isEnglish?'ltr':'rtl'};unicode-bidi:isolate;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:22px;font-family:Tahoma,Arial,sans-serif;font-size:${isNote?9:isPartner?11:14}px;font-weight:${isNote||isPartner?400:600};color:${isNote?'#85917f':female?'#a95675':'#35668c'};`);
+  label.setAttribute('title',text);label.textContent=text;
+  if(personId){
+   label.setAttribute('role','button');label.setAttribute('tabindex','0');label.setAttribute('aria-label',text);
+   label.addEventListener('click',e=>{e.stopPropagation();if(moveCount<5)choose(personId);});
+   label.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(personId);}});
+  }
+  box.append(label);g.append(box);
+ }
+ function personText(id,y,cls,prefix=''){
+  if(rtl){arabicLabel(prefix+name(id),y-17,cls,id);return;}
+  const tx=elt('text',{x:textX,y,'text-anchor':anchor,direction:rtl?'rtl':'ltr',class:cls+' person-line',tabindex:0,role:'button','aria-label':name(id)},prefix+name(id));tx.addEventListener('click',e=>{e.stopPropagation();if(moveCount<5)choose(id);});tx.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(id);}});g.append(tx);}
  personText(n.id,n.spouseId||n.motherId?29:34,'tree-name '+person.gender);
  if(n.spouseId)personText(n.spouseId,49,'tree-name tree-partner '+people[n.spouseId].gender,lang==='ar'?'':'& ');
  if(n.motherId)personText(n.motherId,49,'tree-name tree-partner f',t('mother'));
  // The alternate-language line flows opposite to the main label.
- if(!n.spouseId&&!n.motherId)g.append(elt('text',{x:textX,y:53,'text-anchor':'end',direction:rtl?'ltr':'rtl',class:'tree-note'},other(n.id)));
- if(n.children.length){const isOpen=expanded.has(n.id),cx=rtl?-13:cardWidth+13;const toggle=elt('g',{role:'button',tabindex:0,'aria-label':`${isOpen?t('collapse'):t('expand')}: ${name(n.id)}`,'aria-expanded':String(isOpen)});toggle.append(elt('circle',{cx,cy:38,r:12,fill:'#fffefa',stroke:'#b9c9af'}));toggle.append(elt('text',{x:cx,y:42,'text-anchor':'middle',fill:'#527349','font-size':15},isOpen?'−':'+'));const change=e=>{e.stopPropagation();if(moveCount>=5)return;if(isOpen)expanded.delete(n.id);else expanded.add(n.id);render();};toggle.addEventListener('click',change);toggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();moveCount=0;change(e);}});g.append(toggle);if(!isOpen)g.append(elt('text',{x:textX,y:68,'text-anchor':anchor,direction:rtl?'rtl':'ltr',class:'tree-note'},`${count(n)} ${t('childCount')}`));}
+ if(!n.spouseId&&!n.motherId){if(rtl)arabicLabel(other(n.id),39,'tree-note',null,true);else g.append(elt('text',{x:textX,y:53,'text-anchor':'end',direction:'rtl',class:'tree-note'},other(n.id)));}
+ if(n.children.length){const isOpen=expanded.has(n.id),cx=rtl?-13:cardWidth+13;const toggle=elt('g',{role:'button',tabindex:0,'aria-label':`${isOpen?t('collapse'):t('expand')}: ${name(n.id)}`,'aria-expanded':String(isOpen)});toggle.append(elt('circle',{cx,cy:38,r:12,fill:'#fffefa',stroke:'#b9c9af'}));toggle.append(elt('text',{x:cx,y:42,'text-anchor':'middle',fill:'#527349','font-size':15},isOpen?'−':'+'));const change=e=>{e.stopPropagation();if(moveCount>=5)return;if(isOpen)expanded.delete(n.id);else expanded.add(n.id);render();};toggle.addEventListener('click',change);toggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();moveCount=0;change(e);}});g.append(toggle);if(!isOpen){if(rtl)arabicLabel(`${count(n)} ${t('childCount')}`,54,'tree-note');else g.append(elt('text',{x:textX,y:68,'text-anchor':anchor,direction:'ltr',class:'tree-note'},`${count(n)} ${t('childCount')}`));}}
  nodes.append(g);}
  const minx=Math.min(0,...positions.map(p=>p.x))-50,miny=Math.min(0,...positions.map(p=>p.y))-100,maxx=Math.max(500,...positions.map(p=>p.x+cardWidth))+50,maxy=Math.max(200,...positions.map(p=>p.y))+100;bounds={x:minx,y:miny,w:maxx-minx,h:maxy-miny};$('scopeLabel').textContent=`${positions.length} ${t('cards')} · ${Object.keys(people).length} ${lang==='en'?'people':'شخصًا'}`;updateTransform();}
 function updateTransform(){$('scene').setAttribute('transform',`translate(${view.x},${view.y}) scale(${view.k})`);$('zoomValue').textContent=Math.round(view.k*100)+'%';}
